@@ -83,7 +83,7 @@ See [here](https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg) on how to use it.
 
 Once all the python packages are installed (see below), you can simply test SynthSeg on your own data with:
 ```
-python ./scripts/commands/SynthSeg_predict.py --i <input> --o <output> [--parc --robust --ct --vol <vol> --qc <qc> --post <post> --resample <resample>]
+python ./scripts/commands/SynthSeg_predict.py --i <input> --o <output> [--parc --robust --ct --vol <vol> --qc <qc> --post <post> --resample <resample> --patch <size>]
 ```
 
 
@@ -114,6 +114,12 @@ the runtime when using the CPU version.
 Images are cropped around their centre, and their segmentations are given at the original size. It can be given as a 
 single (i.e., `--crop 160`), or several integers (i.e, `--crop 160 128 192`, ordered in RAS coordinates). By default the
 whole image is processed. Use this flag for faster analysis or to fit in your GPU.
+- `--patch`: (optional) to predict on overlapping patches of a given size instead of the whole image at once, which 
+bounds the memory used by the network (e.g., `--patch 128` segments full-size scans on a 6GB GPU). Unlike `--crop`, 
+the whole image is still segmented: patches overlap by 50%, and their predictions are blended with a Gaussian window 
+that down-weights patch borders. Sizes are rounded up to a multiple of 32, and can be given as one or several integers 
+(as for `--crop`). Results are very close to whole-image prediction, although small central structures can differ by a 
+few percent in volume, since each patch sees less context. This flag is not compatible with `--qc`.
 - `--fast`: (optional) to disable some operations for faster prediction (twice as fast, but slightly less accurate). 
 This doesn't apply when the --robust flag is used.
 - `--v1`: (optional) to run the first version of SynthSeg (SynthSeg 1.0, updated 29/06/2022).
